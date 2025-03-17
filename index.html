@@ -7,17 +7,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
     <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   </head>
-  <body class="body">
+  <body>
     <header>
       <img src="images/narutoLogo.png" alt="" width="20%" />
     </header>
     <div>Teachable Machine Image Model</div>
     <div id="label-container"></div>
-    <div class="grid">
-      <img src="images/cheval.png" data-animal="cheval" class="Cheval" alt="" width="200px" />
+    <div class="grid grid-cols-3 gap-4 p-12 mt-12 justify-items-center items-center">
+      <img src="images/cheval.png" class="Cheval" alt="" width="200px" />
       <div id="webcam-container"></div>
       <img src="images/chien.png" data-animal="chien" alt="" class="Chien" width="200px" />
       <img src="images/sanglier.png" data-animal="sanglier" alt="" class="sanglier" width="200px" />
