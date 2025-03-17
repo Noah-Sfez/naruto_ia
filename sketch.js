@@ -97,15 +97,13 @@ async function predict() {
 
   if (currentSign === mostFrequentPrediction) {
     if (Date.now() - signStartTime > 2000) {
-      // Check if the last validated sign is different from the current sign and not "Rien"
       if (
         mostFrequentPrediction !== "Rien" &&
         (validatedSigns.length === 0 ||
           validatedSigns[validatedSigns.length - 1] !== currentSign)
       ) {
-        // Limit the number of validated signs to 4
         if (validatedSigns.length >= 4) {
-          validatedSigns.shift(); // Remove the oldest sign
+          validatedSigns = [];
         }
         validatedSigns.push(currentSign);
         console.log("Validated Signs: ", validatedSigns);
