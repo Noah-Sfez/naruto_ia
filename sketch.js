@@ -58,6 +58,33 @@ async function predict() {
 
   // Change the body's background color based on the highest prediction
   document.body.style.backgroundColor = getColorForClass(highestPrediction.className);
+  // Store the last 100 predictions
+  if (!window.predictionHistory) {
+    window.predictionHistory = [];
+  }
+
+  window.predictionHistory.push(highestPrediction.className);
+
+  if (window.predictionHistory.length > 20) {
+    window.predictionHistory.shift();
+  }
+
+  // Calculate the most frequent prediction
+  const frequency = {};
+  window.predictionHistory.forEach(prediction => {
+    frequency[prediction] = (frequency[prediction] || 0) + 1;
+  });
+
+  let mostFrequentPrediction = "";
+  let maxCount = 0;
+  for (const prediction in frequency) {
+    if (frequency[prediction] > maxCount) {
+      mostFrequentPrediction = prediction;
+      maxCount = frequency[prediction];
+    }
+  }
+
+  console.log(mostFrequentPrediction);
 }
 
 // Function to map class names to colors
