@@ -10,16 +10,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <link rel="stylesheet" href="https://horizon-tailwind-react-corporate-7s21b54hb-horizon-ui.vercel.app/static/css/main.d7f96858.css" />
   </head>
   <body>
     <header>
       <img src="images/narutoLogo.png" alt="" width="20%" />
     </header>
-    <div>Teachable Machine Image Model</div>
-    <div id="label-container"></div>
+    <div class="flex-col gap-4 justify-items-center">
+      <h2>Teachable Machine Image Model</h2>
+      <div id="label-container" class="flex gap-4"></div>
+    </div>
     <div class="grid grid-cols-3 gap-4 p-12 mt-12 justify-items-center items-center">
       <img src="images/cheval.png" class="Cheval" alt="" width="200px" />
-      <div id="webcam-container" class="fire"></div>
+      <div>
+        <div id="validated-signs-container" class="flex"></div>
+        <div id="webcam-container" class="fire"></div>
+      </div>
+      
       <img src="images/chien.png" data-animal="chien" alt="" class="Chien" width="200px" />
       <img src="images/sanglier.png" data-animal="sanglier" alt="" class="sanglier" width="200px" />
       <img src="images/singe.png" data-animal="singe" alt="" class="singe" width="200px" />
