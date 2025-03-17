@@ -29,7 +29,8 @@ async function init() {
   for (let i = 0; i < maxPredictions; i++) {
     // and class labels
     const div = document.createElement("div");
-    div.className = "flex justify-center p-2 w-28 bg-black text-white rounded-md";
+    div.className =
+      "flex justify-center p-2 w-28 bg-black text-white rounded-md";
     labelContainer.appendChild(div);
   }
 
@@ -44,86 +45,110 @@ async function loop() {
 let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
+
+const predefinedSigns = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie
+
 async function predict() {
-    // predict can take in an image, video or canvas html element
-    const prediction = await model.predict(webcam.canvas);
-    let highestPrediction = { className: "", probability: 0 };
+  // predict can take in an image, video or canvas html element
+  const prediction = await model.predict(webcam.canvas);
+  let highestPrediction = { className: "", probability: 0 };
 
-    for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-            prediction[i].className +
-            ": " +
-            prediction[i].probability.toFixed(2);
-        labelContainer.childNodes[i].innerHTML = classPrediction;
+  for (let i = 0; i < maxPredictions; i++) {
+    const classPrediction =
+      prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+    labelContainer.childNodes[i].innerHTML = classPrediction;
 
-        if (prediction[i].probability > highestPrediction.probability) {
-            highestPrediction = prediction[i];
+    if (prediction[i].probability > highestPrediction.probability) {
+      highestPrediction = prediction[i];
+    }
+  }
+
+  // Change the body's background color based on the highest prediction
+  document.body.style.backgroundColor = getColorForClass(
+    highestPrediction.className
+  );
+  // Store the last 100 predictions
+  if (!window.predictionHistory) {
+    window.predictionHistory = [];
+  }
+
+  window.predictionHistory.push(highestPrediction.className);
+
+  if (window.predictionHistory.length > 20) {
+    window.predictionHistory.shift();
+  }
+
+  // Calculate the most frequent prediction
+  const frequency = {};
+  window.predictionHistory.forEach((prediction) => {
+    frequency[prediction] = (frequency[prediction] || 0) + 1;
+  });
+
+  let mostFrequentPrediction = "";
+  let maxCount = 0;
+  for (const prediction in frequency) {
+    if (frequency[prediction] > maxCount) {
+      mostFrequentPrediction = prediction;
+      maxCount = frequency[prediction];
+    }
+  }
+
+  console.log(mostFrequentPrediction);
+
+  if (currentSign === mostFrequentPrediction) {
+    if (Date.now() - signStartTime > 2000) {
+      // Check if the last validated sign is different from the current sign and not "Rien"
+      if (
+        mostFrequentPrediction !== "Rien" &&
+        (validatedSigns.length === 0 ||
+          validatedSigns[validatedSigns.length - 1] !== currentSign)
+      ) {
+        // Limit the number of validated signs to 4
+        if (validatedSigns.length >= 4) {
+          validatedSigns.shift(); // Remove the oldest sign
         }
-    }
+        validatedSigns.push(currentSign);
+        console.log("Validated Signs: ", validatedSigns);
+        displayValidatedSigns();
 
-    // Change the body's background color based on the highest prediction
-    document.body.style.backgroundColor = getColorForClass(
-        highestPrediction.className
-    );
-    // Store the last 100 predictions
-    if (!window.predictionHistory) {
-        window.predictionHistory = [];
-    }
-
-    window.predictionHistory.push(highestPrediction.className);
-
-    if (window.predictionHistory.length > 20) {
-        window.predictionHistory.shift();
-    }
-
-    // Calculate the most frequent prediction
-    const frequency = {};
-    window.predictionHistory.forEach((prediction) => {
-        frequency[prediction] = (frequency[prediction] || 0) + 1;
-    });
-
-    let mostFrequentPrediction = "";
-    let maxCount = 0;
-    for (const prediction in frequency) {
-        if (frequency[prediction] > maxCount) {
-            mostFrequentPrediction = prediction;
-            maxCount = frequency[prediction];
+        // Check if validatedSigns matches predefinedSigns
+        const webcamContainer = document.querySelector("#webcam-container");
+        if (arraysEqual(validatedSigns, predefinedSigns)) {
+          if (webcamContainer) {
+            webcamContainer.classList.add("fire");
+          } else {
+            console.error("Element with class 'webcam-container' not found.");
+          }
+        } else {
+          if (webcamContainer) {
+            webcamContainer.classList.remove("fire");
+          }
         }
+      }
+      currentSign = null;
+      signStartTime = null;
     }
+  } else {
+    currentSign = mostFrequentPrediction;
+    signStartTime = Date.now();
+  }
+  // Apply zoom animation to the highest prediction image
+  applyZoomAnimation(highestPrediction.className);
+}
 
-    console.log(mostFrequentPrediction);
-
-    if (currentSign === mostFrequentPrediction) {
-        if (Date.now() - signStartTime > 2000) {
-            // Check if the last validated sign is different from the current sign and not "Rien"
-            if (
-                mostFrequentPrediction !== "Rien" &&
-                (validatedSigns.length === 0 ||
-                    validatedSigns[validatedSigns.length - 1] !== currentSign)
-            ) {
-                // Limit the number of validated signs to 4
-                if (validatedSigns.length >= 4) {
-                    validatedSigns.shift(); // Remove the oldest sign
-                }
-                validatedSigns.push(currentSign);
-                console.log("Validated Signs: ", validatedSigns);
-                displayValidatedSigns();
-            }
-            currentSign = null;
-            signStartTime = null;
-        }
-    } else {
-        currentSign = mostFrequentPrediction;
-        signStartTime = Date.now();
-    }
-    // Apply zoom animation to the highest prediction image
-    applyZoomAnimation(highestPrediction.className);
+// Function to check if two arrays are equal
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
 // Function to display validated signs
 function displayValidatedSigns() {
   const container = document.getElementById("validated-signs-container");
   container.innerHTML = ""; // Clear the container
-  validatedSigns.forEach(sign => {
+  validatedSigns.forEach((sign) => {
     const img = document.createElement("img");
     img.src = `./images/animal-${sign}.png`; // Assumes you have images named after the class names
     img.alt = sign;
