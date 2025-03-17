@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teachable Machine Image Model</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  </head>
+  <body class="body">
+    <header>
+      <img src="images/narutoLogo.png" alt="" width="20%" />
+    </header>
+    <div>Teachable Machine Image Model</div>
+    <div id="label-container"></div>
+    <div class="grid">
+      <img src="images/cheval.png" alt="" width="200px" />
+      <div id="webcam-container"></div>
+      <img src="images/chien.png" alt="" width="200px" />
+      <img src="images/sanglier.png" alt="" width="200px" />
+      <img src="images/singe.png" alt="" width="200px" />
+      <img src="images/tigre.png" alt="" width="200px" />
+    </div>
+
+    <script src="sketch.js"></script>
+  </body>
+</html>
