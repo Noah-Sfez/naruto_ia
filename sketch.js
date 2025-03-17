@@ -28,7 +28,9 @@ async function init() {
   labelContainer = document.getElementById("label-container");
   for (let i = 0; i < maxPredictions; i++) {
     // and class labels
-    labelContainer.appendChild(document.createElement("div"));
+    const div = document.createElement("div");
+    div.className = "flex justify-center p-2 w-28 bg-black text-white rounded-md";
+    labelContainer.appendChild(div);
   }
 
   // Call predict function every 2 seconds

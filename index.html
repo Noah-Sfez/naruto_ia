@@ -10,13 +10,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <link rel="stylesheet" href="https://horizon-tailwind-react-corporate-7s21b54hb-horizon-ui.vercel.app/static/css/main.d7f96858.css" />
   </head>
   <body>
     <header>
       <img src="images/narutoLogo.png" alt="" width="20%" />
     </header>
-    <div>Teachable Machine Image Model</div>
-    <div id="label-container"></div>
+    <div class="flex-col gap-4 justify-items-center">
+      <h2>Teachable Machine Image Model</h2>
+      <div id="label-container" class="flex gap-4"></div>
+    </div>
     <div class="grid grid-cols-3 gap-4 p-12 mt-12 justify-items-center items-center">
       <img src="images/cheval.png" alt="" width="200px" />
       <div id="webcam-container"></div>
