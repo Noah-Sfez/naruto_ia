@@ -2,7 +2,7 @@
 // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
 // the link to your model provided by Teachable Machine export panel
-const URL = "./mudra/";
+const URL = "./neant/";
 
 let model, webcam, labelContainer, maxPredictions;
 
@@ -39,58 +39,96 @@ async function loop() {
   webcam.update(); // update the webcam frame
   window.requestAnimationFrame(loop);
 }
-
+let validatedSigns = [];
+let currentSign = null;
+let signStartTime = null;
 async function predict() {
-  // predict can take in an image, video or canvas html element
-  const prediction = await model.predict(webcam.canvas);
-  let highestPrediction = { className: "", probability: 0 };
+    // predict can take in an image, video or canvas html element
+    const prediction = await model.predict(webcam.canvas);
+    let highestPrediction = { className: "", probability: 0 };
 
-  for (let i = 0; i < maxPredictions; i++) {
-    const classPrediction =
-      prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-    labelContainer.childNodes[i].innerHTML = classPrediction;
+    for (let i = 0; i < maxPredictions; i++) {
+        const classPrediction =
+            prediction[i].className +
+            ": " +
+            prediction[i].probability.toFixed(2);
+        labelContainer.childNodes[i].innerHTML = classPrediction;
 
-    if (prediction[i].probability > highestPrediction.probability) {
-      highestPrediction = prediction[i];
+        if (prediction[i].probability > highestPrediction.probability) {
+            highestPrediction = prediction[i];
+        }
     }
-  }
 
-  // Change the body's background color based on the highest prediction
-  document.body.style.backgroundColor = getColorForClass(
-    highestPrediction.className
-  );
-  // Store the last 100 predictions
-  if (!window.predictionHistory) {
-    window.predictionHistory = [];
-  }
-
-  window.predictionHistory.push(highestPrediction.className);
-
-  if (window.predictionHistory.length > 20) {
-    window.predictionHistory.shift();
-  }
-
-  // Calculate the most frequent prediction
-  const frequency = {};
-  window.predictionHistory.forEach(prediction => {
-    frequency[prediction] = (frequency[prediction] || 0) + 1;
-  });
-
-  let mostFrequentPrediction = "";
-  let maxCount = 0;
-  for (const prediction in frequency) {
-    if (frequency[prediction] > maxCount) {
-      mostFrequentPrediction = prediction;
-      maxCount = frequency[prediction];
+    // Change the body's background color based on the highest prediction
+    document.body.style.backgroundColor = getColorForClass(
+        highestPrediction.className
+    );
+    // Store the last 100 predictions
+    if (!window.predictionHistory) {
+        window.predictionHistory = [];
     }
-  }
 
-  console.log(mostFrequentPrediction);
+    window.predictionHistory.push(highestPrediction.className);
 
-  // Apply zoom animation to the highest prediction image
-  applyZoomAnimation(highestPrediction.className);
+    if (window.predictionHistory.length > 20) {
+        window.predictionHistory.shift();
+    }
+
+    // Calculate the most frequent prediction
+    const frequency = {};
+    window.predictionHistory.forEach((prediction) => {
+        frequency[prediction] = (frequency[prediction] || 0) + 1;
+    });
+
+    let mostFrequentPrediction = "";
+    let maxCount = 0;
+    for (const prediction in frequency) {
+        if (frequency[prediction] > maxCount) {
+            mostFrequentPrediction = prediction;
+            maxCount = frequency[prediction];
+        }
+    }
+
+    console.log(mostFrequentPrediction);
+
+    if (currentSign === mostFrequentPrediction) {
+        if (Date.now() - signStartTime > 2000) {
+            // Check if the last validated sign is different from the current sign and not "Rien"
+            if (
+                mostFrequentPrediction !== "Rien" &&
+                (validatedSigns.length === 0 ||
+                    validatedSigns[validatedSigns.length - 1] !== currentSign)
+            ) {
+                // Limit the number of validated signs to 4
+                if (validatedSigns.length >= 4) {
+                    validatedSigns.shift(); // Remove the oldest sign
+                }
+                validatedSigns.push(currentSign);
+                console.log("Validated Signs: ", validatedSigns);
+                displayValidatedSigns();
+            }
+            currentSign = null;
+            signStartTime = null;
+        }
+    } else {
+        currentSign = mostFrequentPrediction;
+        signStartTime = Date.now();
+    }
+    // Apply zoom animation to the highest prediction image
+    applyZoomAnimation(highestPrediction.className);
 }
-
+// Function to display validated signs
+function displayValidatedSigns() {
+  const container = document.getElementById("validated-signs-container");
+  container.innerHTML = ""; // Clear the container
+  validatedSigns.forEach(sign => {
+    const img = document.createElement("img");
+    img.src = `./images/animal-${sign}.png`; // Assumes you have images named after the class names
+    img.alt = sign;
+    img.classList.add("validated-sign");
+    container.appendChild(img);
+  });
+}
 // Function to apply zoom animation to the highest prediction image
 function applyZoomAnimation(className) {
   // Remove the zoom-animation class from all images

@@ -20,3 +20,6 @@
 .zoom-animation {
     animation: zoomInOut 2s infinite;
 }
+.validated-sign {
+    width: 20%;
+}
