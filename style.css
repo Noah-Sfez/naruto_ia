@@ -4,3 +4,19 @@
     padding: 0;
     box-sizing: border-box;
 }
+
+@keyframes zoomInOut {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.zoom-animation {
+    animation: zoomInOut 2s infinite;
+}

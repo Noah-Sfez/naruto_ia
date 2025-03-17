@@ -40,7 +40,6 @@ async function loop() {
   window.requestAnimationFrame(loop);
 }
 
-// run the webcam image through the image model
 async function predict() {
   // predict can take in an image, video or canvas html element
   const prediction = await model.predict(webcam.canvas);
@@ -57,7 +56,25 @@ async function predict() {
   }
 
   // Change the body's background color based on the highest prediction
-  document.body.style.backgroundColor = getColorForClass(highestPrediction.className);
+  document.body.style.backgroundColor = getColorForClass(
+    highestPrediction.className
+  );
+
+  // Apply zoom animation to the highest prediction image
+  applyZoomAnimation(highestPrediction.className);
+}
+
+// Function to apply zoom animation to the highest prediction image
+function applyZoomAnimation(className) {
+  // Remove the zoom-animation class from all images
+  const images = document.querySelectorAll("img");
+  images.forEach((img) => img.classList.remove("zoom-animation"));
+
+  // Add the zoom-animation class to the image with the highest prediction class name
+  const targetImage = document.querySelector(`img.${className}`);
+  if (targetImage) {
+    targetImage.classList.add("zoom-animation");
+  }
 }
 
 // Function to map class names to colors
