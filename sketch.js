@@ -65,10 +65,7 @@ async function predict() {
     }
   }
 
-  // Change the body's background color based on the highest prediction
-  document.body.style.backgroundColor = getColorForClass(
-    highestPrediction.className
-  );
+  
   // Store the last 100 predictions
   if (!window.predictionHistory) {
     window.predictionHistory = [];
