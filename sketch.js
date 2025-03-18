@@ -14,6 +14,7 @@ const firebaseConfig = {
     appId: "1:123088598116:web:d5959376cbe9d17e1c5b71",
     measurementId: "G-8S858350W1",
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -184,19 +185,24 @@ function determinerGagnant(matchRef) {
 
         matchRef.child("winner").set({ winner, timestamp: Date.now() });
         console.log(`🏆 Le gagnant est : ${winner}`);
+
+        // 🔄 Réinitialisation du match après 5 secondes
+        setTimeout(() => {
+            db.ref("duels/match_1").remove();
+            console.log("🔄 Match réinitialisé, prêt pour un nouveau duel !");
+        }, 5000);
     });
 }
 
 // 📥 **Écoute du duel en temps réel**
-db.ref("duels/match_1").on("value", (snapshot) => {
-    const matchData = snapshot.val();
-    if (!matchData || !matchData.winner) return;
-
-    const winner = matchData.winner.winner;
-    if (winner === "draw") {
-        alert("⚖️ Match nul !");
-    } else {
-        alert(`🏆 ${winner} a gagné !`);
+db.ref("duels/match_1/winner").on("value", (snapshot) => {
+    if (snapshot.val()) {
+        const winner = snapshot.val().winner;
+        if (winner === "draw") {
+            alert("⚖️ Match nul !");
+        } else {
+            alert(`🏆 ${winner} a gagné !`);
+        }
     }
 });
 
