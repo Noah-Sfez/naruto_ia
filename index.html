@@ -4,36 +4,119 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Naruto Mudra</title>
+    
+    <!-- Librairies nécessaires -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
     <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    <link rel="stylesheet" href="https://horizon-tailwind-react-corporate-7s21b54hb-horizon-ui.vercel.app/static/css/main.d7f96858.css" />
-  </head>
-  <body>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Utilisation du CDN officiel Tailwind -->
+    
+    <!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-database-compat.js"></script>
+
+</head>
+
+<body class="bg-[url(/images/bg-naruto.jpg)] bg-cover bg-center">
+  <!--
+<script>
+    console.log("Firebase chargé ?", typeof firebase !== "undefined");
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyD7fPS34yKGiwz7l6s8tNW6-Rq6XbbuWZw",
+    authDomain: "naruto-3cfab.firebaseapp.com",
+    databaseURL:
+        "https://naruto-3cfab-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "naruto-3cfab",
+    storageBucket: "naruto-3cfab.firebasestorage.app",
+    messagingSenderId: "123088598116",
+    appId: "1:123088598116:web:d5959376cbe9d17e1c5b71",
+    measurementId: "G-8S858350W1",
+};
+
+    // Initialisation Firebase
+    if (typeof firebase !== "undefined") {
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Fonction pour envoyer un geste
+        function envoyerGeste(geste) {
+            db.ref("geste").set({ action: geste });
+            console.log("Geste envoyé :", geste);
+        }
+
+        // Fonction pour écouter les gestes en temps réel
+        db.ref("geste").on("value", (snapshot) => {
+            if (snapshot.val()) {
+                console.log("Geste reçu :", snapshot.val().action);
+            }
+        });
+    } else {
+        console.error("Firebase ne s'est pas chargé correctement !");
+    }
+</script>-->
     <header class="flex justify-between items-center p-4">
-      <img src="images/narutoLogo.png" alt="" width="20%" />
-      <div id="label-container" class="flex gap-4"></div>
+        <img src="images/narutoLogo.png" alt="Naruto Logo" width="20%" />
+        <div id="label-container" class="flex gap-8"></div>
     </header>
+
     <div class="grid grid-cols-3 gap-4 p-12 mt-12 justify-items-center items-center">
       <div class="flex flex-col">
-        <img src="images/cheval.png" class="Cheval" alt="" width="160px" />
-        <img src="images/chien.png" data-animal="chien" alt="" class="Chien" width="160px" />
-        <img src="images/sanglier.png" data-animal="sanglier" alt="" class="sanglier" width="160px" />
-        <img src="images/singe.png" data-animal="singe" alt="" class="singe" width="160px" />
-        <img src="images/tigre.png" data-animal="tigre" class="tigre" width="160px" />
+        <div class="flex gap-8">
+          <img src="images/singe.png" data-animal="singe" alt="singe" class="singe" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-singe.png" data-animal="singe" alt="singe" class="singe" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/sanglier.png" data-animal="sanglier" alt="sanglier" class="sanglier" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-sanglier.png" data-animal="sanglier" alt="sanglier" class="sanglier" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/tigre.png" data-animal="tigre" alt="tigre" class="tigre" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-tigre.png" data-animal="tigre" alt="tigre" class="tigre" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/cheval.png" data-animal="cheval" alt="cheval" class="cheval" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-cheval.png" data-animal="cheval" alt="cheval" class="cheval" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/chien.png" data-animal="chien" alt="" class="chien" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-chien.png" data-animal="chien" alt="" class="chien" width="120px" />
+        </div>
       </div>
 
-      <div>
-        <div id="webcam-container" class="lightning"></div>
-        <div id="validated-signs-container" class="flex mb-4"></div>
-      </div>
-      
+    <div>
+      <div id="webcam-container" class=""></div>
+      <div id="validated-signs-container" class="flex mb-4"></div>
     </div>
 
-    <script src="sketch.js"></script>
-    <script src="connect.js"></script>
-  </body>
+    <div class="flex flex-col border border-2 border-gray-400 p-4 rounded-lg">
+      <div class="flex gap-2 justify-between items-center p-2">
+        <img src="images/singe.png" alt="singe" width="80px" />
+        <img src="images/chien.png" alt="chien" width="80px" />
+        <img src="images/sanglier.png" alt="sanglier" width="80px" />
+        <img src="images/tigre.png" alt="tigre" width="80px" />
+        <p class="text-9xl text-white">=</p>
+        <img src="images/feu.png" alt="feu" width="80px" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts personnalisés -->
+  <script src="sketch.js"></script>
+</body>
 </html>
