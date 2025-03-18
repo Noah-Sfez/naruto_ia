@@ -150,7 +150,7 @@
 
 @keyframes flash {
   0%, 100% {
-    background: rgba(255, 255, 255, 0);
+    background: rgba(219, 219, 219, 0);
   }
   50% {
     background: rgba(255, 237, 40, 0.8);
