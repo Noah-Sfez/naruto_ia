@@ -57,9 +57,9 @@ let currentSign = null;
 let signStartTime = null;
 
 const predefinedSigns = {
-    fire: ["singe", "Chien", "sanglier", "tigre"],
-    water: ["Cheval", "tigre", "Chien", "Cheval"],
-    lightning: ["tigre", "sanglier", "Cheval", "Chien"],
+    fire: ["singe", "chien", "sanglier", "tigre"],
+    water: ["cheval", "tigre", "sanglier", "cheval"],
+    lightning: ["tigre", "sanglier", "cheval", "chien"],
 };
 
 // 🔍 Fonction principale de prédiction
@@ -132,10 +132,14 @@ function getMostFrequentPrediction(currentPrediction) {
 
 // 🔥 **Détecte quel élément a été réalisé**
 function detectElement(validatedSigns) {
+    console.log("🔍 Vérification de la combinaison :", validatedSigns);
     for (let element in predefinedSigns) {
-        if (arraysEqual(validatedSigns, predefinedSigns[element]))
+        if (arraysEqual(validatedSigns, predefinedSigns[element])) {
+            console.log("✅ Élément détecté :", element);
             return element;
+        }
     }
+    console.warn("⚠️ Aucune correspondance trouvée pour :", validatedSigns);
     return null;
 }
 
@@ -192,6 +196,25 @@ function determinerGagnant(matchRef) {
         }, 5000);
     });
 }
+db.ref("duels/match_1").on("value", (snapshot) => {
+    const matchData = snapshot.val();
+
+    if (matchData && matchData.winner) {
+        console.log(`🏆 Match terminé ! Gagnant : ${matchData.winner}`);
+        setTimeout(() => {
+            db.ref("duels/match_1")
+                .remove()
+                .then(() =>
+                    console.log(
+                        "🔄 Match réinitialisé ! Prêt pour un nouveau duel."
+                    )
+                )
+                .catch((error) =>
+                    console.error("❌ Erreur de réinitialisation :", error)
+                );
+        }, 5000);
+    }
+});
 
 // 📥 **Écoute du duel en temps réel**
 db.ref("duels/match_1/winner").on("value", (snapshot) => {
