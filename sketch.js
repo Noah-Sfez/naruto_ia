@@ -57,7 +57,9 @@ let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
 
-const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Combinaison valide
+const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie pour le feu
+const predefinedSignsWater = ["Cheval", "tigre", "Chien", "Cheval"]; // Liste prédéfinie pour l'eau
+const predefinedSignsLightning = ["tigre", "sanglier", "Cheval", "Chien"]; // Liste prédéfinie pour la foudre
 
 // 🔍 Fonction principale de prédiction
 async function predict() {
@@ -75,39 +77,81 @@ async function predict() {
         }
     }
 
-    if (currentSign === highestPrediction.className) {
-        if (Date.now() - signStartTime > 2000) {
-            if (
-                highestPrediction.className !== "Rien" &&
-                (validatedSigns.length === 0 ||
-                    validatedSigns[validatedSigns.length - 1] !== currentSign)
-            ) {
-                if (validatedSigns.length >= 4) {
-                    validatedSigns = [];
-                }
+  
+  // Store the last 100 predictions
+  if (!window.predictionHistory) {
+    window.predictionHistory = [];
+  }
 
-                validatedSigns.push(currentSign);
-                console.log("Validated Signs:", validatedSigns);
-                displayValidatedSigns();
+  window.predictionHistory.push(highestPrediction.className);
 
-                // 🚀 Vérifie si la combinaison validée correspond à `predefinedSignsFire`
-                if (arraysEqual(validatedSigns, predefinedSignsFire)) {
-                    console.log(
-                        "🔥 Combinaison Fire validée ! Envoi à Firebase..."
-                    );
-                    envoyerCombinaison(validatedSigns);
-                }
-            }
-            currentSign = null;
-            signStartTime = null;
-        }
-    } else {
-        currentSign = highestPrediction.className;
-        signStartTime = Date.now();
+  if (window.predictionHistory.length > 20) {
+    window.predictionHistory.shift();
+  }
+
+  // Calculate the most frequent prediction
+  const frequency = {};
+  window.predictionHistory.forEach((prediction) => {
+    frequency[prediction] = (frequency[prediction] || 0) + 1;
+  });
+
+  let mostFrequentPrediction = "";
+  let maxCount = 0;
+  for (const prediction in frequency) {
+    if (frequency[prediction] > maxCount) {
+      mostFrequentPrediction = prediction;
+      maxCount = frequency[prediction];
     }
+  }
 
-    applyZoomAnimation(highestPrediction.className);
+  console.log(mostFrequentPrediction);
+
+  if (currentSign === mostFrequentPrediction) {
+    if (Date.now() - signStartTime > 2000) {
+      // Check if the last validated sign is different from the current sign and not "Rien"
+      if (
+        mostFrequentPrediction !== "Rien" &&
+        (validatedSigns.length === 0 ||
+          validatedSigns[validatedSigns.length - 1] !== currentSign)
+      ) {
+        // Limit the number of validated signs to 4
+        if (validatedSigns.length >= 4) {
+          validatedSigns.shift(); // Remove the oldest sign
+        }
+        validatedSigns.push(currentSign);
+        console.log("Validated Signs: ", validatedSigns);
+        displayValidatedSigns();
+
+        // Check if validatedSigns matches any predefinedSigns
+        const webcamContainer = document.querySelector("#webcam-container");
+        if (webcamContainer) {
+          if (arraysEqual(validatedSigns, predefinedSignsFire)) {
+            webcamContainer.classList.add("fire");
+            webcamContainer.classList.remove("water", "lightning");
+          } else if (arraysEqual(validatedSigns, predefinedSignsWater)) {
+            webcamContainer.classList.add("water");
+            webcamContainer.classList.remove("fire", "lightning");
+          } else if (arraysEqual(validatedSigns, predefinedSignsLightning)) {
+            webcamContainer.classList.add("lightning");
+            webcamContainer.classList.remove("fire", "water");
+          } else {
+            webcamContainer.classList.remove("fire", "water", "lightning");
+          }
+        } else {
+          console.error("Element with class 'webcam-container' not found.");
+        }
+      }
+      currentSign = null;
+      signStartTime = null;
+    }
+  } else {
+    currentSign = mostFrequentPrediction;
+    signStartTime = Date.now();
+  }
+  // Apply zoom animation to the highest prediction image
+  applyZoomAnimation(highestPrediction.className);
 }
+
 
 // 📤 **Fonction pour envoyer la combinaison validée dans Firebase**
 function envoyerCombinaison(combinaison) {
