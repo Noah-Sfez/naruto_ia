@@ -1,24 +1,32 @@
-const socket = new WebSocket("ws://192.168.56.1:8080"); // Mets l'IP correcte
-
-socket.onopen = () => {
-    console.log("Connecté au serveur WebSocket !");
+// Configuration Firebase (remplace par tes valeurs)
+const firebaseConfig = {
+    apiKey: "AIzaSyD7fPS34yKGiwz7l6s8tNW6-Rq6XbbuWZw",
+    authDomain: "naruto-3cfab.firebaseapp.com",
+    databaseURL:
+        "https://naruto-3cfab-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "naruto-3cfab",
+    storageBucket: "naruto-3cfab.firebasestorage.app",
+    messagingSenderId: "123088598116",
+    appId: "1:123088598116:web:d5959376cbe9d17e1c5b71",
+    measurementId: "G-8S858350W1",
 };
 
-// Envoyer un message lorsqu'un joueur fait un geste
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Fonction pour envoyer un geste
 function envoyerGeste(geste) {
-    socket.send(JSON.stringify({ type: "geste", data: geste }));
+    db.ref("geste").set({ action: geste });
+    console.log("Geste envoyé :", geste);
 }
 
-// Recevoir les gestes de l'autre joueur
-socket.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-
-    if (message.type === "geste") {
-        console.log("L'autre joueur a fait :", message.data);
-        // ➤ Déclenche ici l'animation correspondant au geste reçu
+// Fonction pour écouter les gestes en temps réel
+db.ref("geste").on("value", (snapshot) => {
+    if (snapshot.val()) {
+        console.log("Geste reçu :", snapshot.val().action);
+        // ➤ Ajoute ici l’animation en fonction du geste reçu
     }
-};
+});
 
-socket.onclose = () => {
-    console.log("Déconnecté du serveur WebSocket.");
-};
+console.log(firebase.database());
+
