@@ -65,7 +65,7 @@ async function predict() {
     }
   }
 
-  
+      
   // Store the last 100 predictions
   if (!window.predictionHistory) {
     window.predictionHistory = [];

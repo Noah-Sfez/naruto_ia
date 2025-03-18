@@ -74,60 +74,85 @@
     width: 20%;
 }
 
-.water{
-    background: #63bbc5;
-    background: linear-gradient(0deg, #63bbc5 0%, #ff8951 100%);
-    background-size: 100% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-size: 3em;
-    font-weight: bold;
-    text-align: center;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    animation: water 2s infinite;
-    filter: drop-shadow(0 0 10px #ff0000);
+.water {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(0deg, #63bbc5 0%, #ff8951 100%);
+  background-size: 100% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: 3em;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-@keyframes water {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 100% 100%;
-    }
+.water::before,
+.water::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: rgba(0, 0, 255, 0.5);
+  border-radius: 45%;
+  animation: wave 5s infinite linear;
+}
+
+.water::after {
+  animation-delay: -2.5s;
+}
+
+@keyframes wave {
+  0% {
+    transform: translate(-20%, 25%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-20%, 25%) rotate(360deg);
+  }
 }
 
 .lightning {
-    background: #63bbc5;
-    background: linear-gradient(0deg, #63bbc5 0%, #ff8951 100%);
-    background-size: 100% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-size: 3em;
-    font-weight: bold;
-    text-align: center;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    animation: lightning 2s infinite;
-    filter: drop-shadow(0 0 10px #ff0000);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(0deg, #63bbc5 0%, #ff8951 100%);
+  background-size: 100% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: 3em;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: drop-shadow(0 0 10px #ff0000);
 }
 
-@keyframes lightning {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 100% 100%;
-    }
+.lightning::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 0, 0.5);
+  animation: flash 1s infinite;
+}
+
+@keyframes flash {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0);
+  }
+  50% {
+    background: rgba(255, 237, 40, 0.8);
+  }
 }
