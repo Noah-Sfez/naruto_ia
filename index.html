@@ -12,23 +12,59 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <link rel="stylesheet" href="https://horizon-tailwind-react-corporate-7s21b54hb-horizon-ui.vercel.app/static/css/main.d7f96858.css" />
   </head>
-  <body>
+  <body class="bg-[url(/images/bg-naruto.jpg)] bg-cover bg-center">
     <header class="flex justify-between items-center p-4">
       <img src="images/narutoLogo.png" alt="" width="20%" />
-      <div id="label-container" class="flex gap-4"></div>
+      <div id="label-container" class="flex gap-8"></div>
     </header>
     <div class="grid grid-cols-3 gap-4 p-12 mt-12 justify-items-center items-center">
       <div class="flex flex-col">
-        <img src="images/cheval.png" class="Cheval" alt="" width="160px" />
-        <img src="images/chien.png" data-animal="chien" alt="" class="Chien" width="160px" />
-        <img src="images/sanglier.png" data-animal="sanglier" alt="" class="sanglier" width="160px" />
-        <img src="images/singe.png" data-animal="singe" alt="" class="singe" width="160px" />
-        <img src="images/tigre.png" data-animal="tigre" class="tigre" width="160px" />
+        <div class="flex gap-8">
+          <img src="images/singe.png" data-animal="singe" alt="singe" class="singe" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-singe.png" data-animal="singe" alt="singe" class="singe" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/sanglier.png" data-animal="sanglier" alt="sanglier" class="sanglier" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-sanglier.png" data-animal="sanglier" alt="sanglier" class="sanglier" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/tigre.png" data-animal="tigre" alt="tigre" class="tigre" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-tigre.png" data-animal="tigre" alt="tigre" class="tigre" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/cheval.png" data-animal="cheval" alt="cheval" class="cheval" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-cheval.png" data-animal="cheval" alt="cheval" class="cheval" width="120px" />
+        </div>
+
+        <div class="flex gap-8">
+          <img src="images/chien.png" data-animal="chien" alt="" class="chien" width="160px" />
+          <p class="text-9xl">=</p>
+          <img src="images/animal-chien.png" data-animal="chien" alt="" class="chien" width="120px" />
+        </div>
       </div>
 
       <div>
         <div id="webcam-container" class=""></div>
         <div id="validated-signs-container" class="flex mb-4"></div>
+      </div>
+
+      <div class="flex flex-col border border-2 border-gray-400 p-4 rounded-lg">
+        <div class="flex gap-2 justify-between items-center p-2">
+          <img src="images/singe.png" alt="singe" width="80px" />
+          <img src="images/chien.png" alt="chien" width="80px" />
+          <img src="images/sanglier.png" alt="sanglier" width="80px" />
+          <img src="images/tigre.png" alt="tigre" width="80px" />
+          <p class="text-9xl text-white">=</p>
+          <img src="images/feu.png" alt="feu" width="80px" />
+        </div>
+
       </div>
       
     </div>
