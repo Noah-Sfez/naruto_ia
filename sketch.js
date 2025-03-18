@@ -46,7 +46,7 @@ let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
 
-const predefinedSigns = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie
+const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie
 
 async function predict() {
   // predict can take in an image, video or canvas html element
@@ -64,9 +64,9 @@ async function predict() {
   }
 
   // Change the body's background color based on the highest prediction
-  document.body.style.backgroundColor = getColorForClass(
-    highestPrediction.className
-  );
+ // document.body.style.backgroundColor = getColorForClass(
+ //   highestPrediction.className
+ // );
   // Store the last 100 predictions
   if (!window.predictionHistory) {
     window.predictionHistory = [];
@@ -111,7 +111,7 @@ async function predict() {
 
         // Check if validatedSigns matches predefinedSigns
         const webcamContainer = document.querySelector("#webcam-container");
-        if (arraysEqual(validatedSigns, predefinedSigns)) {
+        if (arraysEqual(validatedSigns, predefinedSignsFire)) {
           if (webcamContainer) {
             webcamContainer.classList.add("fire");
           } else {

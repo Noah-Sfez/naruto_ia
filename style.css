@@ -19,6 +19,8 @@
 
 .zoom-animation {
   animation: zoomInOut 2s infinite;
+  filter: drop-shadow(0 0 10px #ff0000);
+
 }
 
 :root {
