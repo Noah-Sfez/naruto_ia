@@ -57,9 +57,9 @@ let currentSign = null;
 let signStartTime = null;
 
 const predefinedSigns = {
-    fire: ["singe", "Chien", "sanglier", "tigre"],
-    water: ["Cheval", "tigre", "Chien", "Cheval"],
-    lightning: ["tigre", "sanglier", "Chien", "Cheval"],
+    fire: ["singe", "chien", "sanglier", "tigre"],
+    water: ["cheval", "tigre", "chien", "cheval"],
+    lightning: ["tigre", "sanglier", "chien", "cheval"],
 };
 
 // 🔍 Fonction principale de prédiction
