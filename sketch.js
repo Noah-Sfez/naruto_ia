@@ -1,8 +1,6 @@
-// 🔥 Chargement du modèle Teachable Machine
 const URL = "./neant/";
 let model, webcam, labelContainer, maxPredictions;
 
-// Initialisation Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyD7fPS34yKGiwz7l6s8tNW6-Rq6XbbuWZw",
     authDomain: "naruto-3cfab.firebaseapp.com",
@@ -27,7 +25,6 @@ async function init() {
     model = await tmImage.load(modelURL, metadataURL);
     maxPredictions = model.getTotalClasses();
 
-    // Configuration de la webcam
     webcam = new tmImage.Webcam(400, 400, true);
     await webcam.setup();
     await webcam.play();
@@ -51,7 +48,6 @@ async function loop() {
     window.requestAnimationFrame(loop);
 }
 
-// 🔥 Définition des combinaisons reconnues
 let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
@@ -62,7 +58,6 @@ const predefinedSigns = {
     lightning: ["tigre", "sanglier", "chien", "cheval"],
 };
 
-// 🔍 Fonction principale de prédiction
 async function predict() {
     const prediction = await model.predict(webcam.canvas);
     let highestPrediction = { className: "", probability: 0 };
@@ -76,7 +71,6 @@ async function predict() {
         }
     }
 
-    // Store the last 100 predictions
     if (!window.predictionHistory) {
         window.predictionHistory = [];
     }
@@ -87,7 +81,6 @@ async function predict() {
         window.predictionHistory.shift();
     }
 
-    // Calculate the most frequent prediction
     const frequency = {};
     window.predictionHistory.forEach((prediction) => {
         frequency[prediction] = (frequency[prediction] || 0) + 1;
@@ -112,7 +105,7 @@ async function predict() {
                     validatedSigns[validatedSigns.length - 1] !== currentSign)
             ) {
                 if (validatedSigns.length >= 4) {
-                    validatedSigns = []; // 🔥 Réinitialise la liste après 4 gestes
+                    validatedSigns = [];
                 }
 
                 validatedSigns.push(currentSign);
@@ -124,7 +117,6 @@ async function predict() {
                     console.log("🔥 Combinaison complète détectée :", element);
                     envoyerCombinaison(validatedSigns, element);
 
-                    // Add or remove classes based on the detected element
                     const webcamContainer = document.getElementById("webcam-container");
                     if (webcamContainer) {
                         webcamContainer.classList.remove("fire", "water", "lightning");
@@ -142,7 +134,7 @@ async function predict() {
 
     applyZoomAnimation(highestPrediction.className);
 }
-// 📌 Fonction pour trouver la prédiction la plus fréquente
+
 function getMostFrequentPrediction(currentPrediction) {
     if (!window.predictionHistory) window.predictionHistory = [];
     window.predictionHistory.push(currentPrediction);
@@ -158,7 +150,6 @@ function getMostFrequentPrediction(currentPrediction) {
     );
 }
 
-// 🔥 **Détecte quel élément a été réalisé**
 function detectElement(validatedSigns) {
     console.log("🔍 Vérification de la combinaison :", validatedSigns);
     for (let element in predefinedSigns) {
@@ -171,8 +162,6 @@ function detectElement(validatedSigns) {
     return null;
 }
 
-
-// 📤 **Envoi de la combinaison validée à Firebase**
 function envoyerCombinaison(combinaison, element) {
     const playerId = Math.random().toString(36).substring(7);
     const matchRef = db.ref("duels/match_1");
@@ -218,7 +207,6 @@ function determinerGagnant(matchRef) {
         matchRef.child("winner").set({ winner, timestamp: Date.now() });
         console.log(`🏆 Le gagnant est : ${winner}`);
 
-        // 🔄 Réinitialisation du match après 5 secondes
         setTimeout(() => {
             db.ref("duels/match_1").remove();
             console.log("🔄 Match réinitialisé, prêt pour un nouveau duel !");
@@ -245,7 +233,6 @@ db.ref("duels/match_1").on("value", (snapshot) => {
     }
 });
 
-// 📥 **Écoute du duel en temps réel**
 db.ref("duels/match_1/winner").on("value", (snapshot) => {
     if (snapshot.val()) {
         const winner = snapshot.val().winner;
@@ -257,7 +244,6 @@ db.ref("duels/match_1/winner").on("value", (snapshot) => {
     }
 });
 
-// 📸 **Ajoute une animation au signe détecté**
 function applyZoomAnimation(className) {
     document
         .querySelectorAll("img")
@@ -266,12 +252,10 @@ function applyZoomAnimation(className) {
     if (targetImage) targetImage.classList.add("zoom-animation");
 }
 
-// ✅ Vérifie si deux tableaux sont identiques
 function arraysEqual(a, b) {
     return JSON.stringify(a) === JSON.stringify(b);
 }
 
-// 🎨 **Affichage des signes validés**
 function displayValidatedSigns(signs = validatedSigns) {
     const container = document.getElementById("validated-signs-container");
     container.innerHTML = "";
@@ -285,5 +269,4 @@ function displayValidatedSigns(signs = validatedSigns) {
     });
 }
 
-// ⏳ Démarre l'initialisation après le chargement du DOM
 document.addEventListener("DOMContentLoaded", init);
