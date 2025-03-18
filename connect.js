@@ -1,5 +1,4 @@
-const socket = new WebSocket("ws://192.168.X.X:8080"); // Remplace par l'IP du serveur
-
+const socket = new WebSocket("ws://10.2.166.74:8080");
 socket.onopen = () => {
     console.log("Connecté au serveur WebSocket !");
 };
