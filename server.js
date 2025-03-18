@@ -1,6 +1,8 @@
 const WebSocket = require("ws");
-
 const server = new WebSocket.Server({ host: "0.0.0.0", port: 8080 });
+
+console.log("Serveur WebSocket lancé sur ws://0.0.0.0:8080");
+
 
 const clients = new Set();
 
