@@ -43,7 +43,6 @@ async function init() {
         labelContainer.appendChild(div);
     }
 
-    // Vérification des gestes toutes les 100ms
     setInterval(predict, 100);
 }
 
