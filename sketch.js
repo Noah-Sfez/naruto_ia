@@ -68,9 +68,7 @@ async function predict() {
     let highestPrediction = { className: "", probability: 0 };
 
     for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction = `${prediction[i].className}: ${prediction[
-            i
-        ].probability.toFixed(2)}`;
+        const classPrediction = `${prediction[i].className}: ${prediction[i].probability.toFixed(2)}`;
         labelContainer.childNodes[i].innerHTML = classPrediction;
 
         if (prediction[i].probability > highestPrediction.probability) {
@@ -78,9 +76,33 @@ async function predict() {
         }
     }
 
-    let mostFrequentPrediction = getMostFrequentPrediction(
-        highestPrediction.className
-    );
+    // Store the last 100 predictions
+    if (!window.predictionHistory) {
+        window.predictionHistory = [];
+    }
+
+    window.predictionHistory.push(highestPrediction.className);
+
+    if (window.predictionHistory.length > 20) {
+        window.predictionHistory.shift();
+    }
+
+    // Calculate the most frequent prediction
+    const frequency = {};
+    window.predictionHistory.forEach((prediction) => {
+        frequency[prediction] = (frequency[prediction] || 0) + 1;
+    });
+
+    let mostFrequentPrediction = "";
+    let maxCount = 0;
+    for (const prediction in frequency) {
+        if (frequency[prediction] > maxCount) {
+            mostFrequentPrediction = prediction;
+            maxCount = frequency[prediction];
+        }
+    }
+
+    console.log("Most Frequent Prediction:", mostFrequentPrediction);
 
     if (currentSign === mostFrequentPrediction) {
         if (Date.now() - signStartTime > 2000) {
@@ -101,6 +123,13 @@ async function predict() {
                 if (element) {
                     console.log("🔥 Combinaison complète détectée :", element);
                     envoyerCombinaison(validatedSigns, element);
+
+                    // Add or remove classes based on the detected element
+                    const webcamContainer = document.getElementById("webcam-container");
+                    if (webcamContainer) {
+                        webcamContainer.classList.remove("fire", "water", "lightning");
+                        webcamContainer.classList.add(element);
+                    }
                 }
             }
             currentSign = null;
@@ -113,7 +142,6 @@ async function predict() {
 
     applyZoomAnimation(highestPrediction.className);
 }
-
 // 📌 Fonction pour trouver la prédiction la plus fréquente
 function getMostFrequentPrediction(currentPrediction) {
     if (!window.predictionHistory) window.predictionHistory = [];
@@ -135,9 +163,8 @@ function detectElement(validatedSigns) {
     console.log("🔍 Vérification de la combinaison :", validatedSigns);
     for (let element in predefinedSigns) {
         if (arraysEqual(validatedSigns, predefinedSigns[element])) {
-            console.log("✅ Élément détecté :", element);
+            console.log("Element detected:", element);
             return element;
-        }
     }
     console.warn("⚠️ Aucune correspondance trouvée pour :", validatedSigns);
     return null;
