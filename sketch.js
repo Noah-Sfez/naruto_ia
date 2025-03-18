@@ -1,188 +1,169 @@
-// More API functions here:
-// https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-
-// the link to your model provided by Teachable Machine export panel
+// 🔥 Chargement du modèle Teachable Machine
 const URL = "./neant/";
-
 let model, webcam, labelContainer, maxPredictions;
 
-// Load the image model and setup the webcam
+// Initialisation Firebase (⚠️ Remplace par tes propres valeurs Firebase)
+const firebaseConfig = {
+    apiKey: "AIzaSyD7fPS34yKGiwz7l6s8tNW6-Rq6XbbuWZw",
+    authDomain: "naruto-3cfab.firebaseapp.com",
+    databaseURL:
+        "https://naruto-3cfab-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "naruto-3cfab",
+    storageBucket: "naruto-3cfab.firebasestorage.app",
+    messagingSenderId: "123088598116",
+    appId: "1:123088598116:web:d5959376cbe9d17e1c5b71",
+    measurementId: "G-8S858350W1",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 async function init() {
-  await tf.ready(); // Ensure TensorFlow.js is ready
+    await tf.ready(); // Vérifie que TensorFlow.js est prêt
 
-  const modelURL = URL + "model.json";
-  const metadataURL = URL + "metadata.json";
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
 
-  model = await tmImage.load(modelURL, metadataURL);
-  maxPredictions = model.getTotalClasses();
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
 
-  // Convenience function to setup a webcam
-  const flip = true; // whether to flip the webcam
-  webcam = new tmImage.Webcam(400, 400, flip); // width, height, flip
-  await webcam.setup(); // request access to the webcam
-  await webcam.play();
-  window.requestAnimationFrame(loop);
+    // Configuration de la webcam
+    webcam = new tmImage.Webcam(400, 400, true);
+    await webcam.setup();
+    await webcam.play();
+    window.requestAnimationFrame(loop);
 
-  // append elements to the DOM
-  document.getElementById("webcam-container").appendChild(webcam.canvas);
-  labelContainer = document.getElementById("label-container");
-  for (let i = 0; i < maxPredictions; i++) {
-    // and class labels
-    const div = document.createElement("div");
-    div.className =
-      "flex justify-center p-2 w-28 bg-black text-white rounded-md";
-    labelContainer.appendChild(div);
-  }
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    labelContainer = document.getElementById("label-container");
 
-  // Call predict function every 2 seconds
-  setInterval(predict, 100);
+    for (let i = 0; i < maxPredictions; i++) {
+        const div = document.createElement("div");
+        div.className =
+            "flex justify-center p-2 w-28 bg-black text-white rounded-md";
+        labelContainer.appendChild(div);
+    }
+
+    // Vérification des gestes toutes les 100ms
+    setInterval(predict, 100);
 }
 
 async function loop() {
-  webcam.update(); // update the webcam frame
-  window.requestAnimationFrame(loop);
+    webcam.update();
+    window.requestAnimationFrame(loop);
 }
+
+// 🔥 Définition des gestes reconnus
 let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
 
-const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie
+const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Combinaison valide
 
+// 🔍 Fonction principale de prédiction
 async function predict() {
-  // predict can take in an image, video or canvas html element
-  const prediction = await model.predict(webcam.canvas);
-  let highestPrediction = { className: "", probability: 0 };
+    const prediction = await model.predict(webcam.canvas);
+    let highestPrediction = { className: "", probability: 0 };
 
-  for (let i = 0; i < maxPredictions; i++) {
-    const classPrediction =
-      prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-    labelContainer.childNodes[i].innerHTML = classPrediction;
+    for (let i = 0; i < maxPredictions; i++) {
+        const classPrediction = `${prediction[i].className}: ${prediction[
+            i
+        ].probability.toFixed(2)}`;
+        labelContainer.childNodes[i].innerHTML = classPrediction;
 
-    if (prediction[i].probability > highestPrediction.probability) {
-      highestPrediction = prediction[i];
-    }
-  }
-
-  // Change the body's background color based on the highest prediction
- // document.body.style.backgroundColor = getColorForClass(
- //   highestPrediction.className
- // );
-  // Store the last 100 predictions
-  if (!window.predictionHistory) {
-    window.predictionHistory = [];
-  }
-
-  window.predictionHistory.push(highestPrediction.className);
-
-  if (window.predictionHistory.length > 20) {
-    window.predictionHistory.shift();
-  }
-
-  // Calculate the most frequent prediction
-  const frequency = {};
-  window.predictionHistory.forEach((prediction) => {
-    frequency[prediction] = (frequency[prediction] || 0) + 1;
-  });
-
-  let mostFrequentPrediction = "";
-  let maxCount = 0;
-  for (const prediction in frequency) {
-    if (frequency[prediction] > maxCount) {
-      mostFrequentPrediction = prediction;
-      maxCount = frequency[prediction];
-    }
-  }
-
-  console.log(mostFrequentPrediction);
-
-  if (currentSign === mostFrequentPrediction) {
-    if (Date.now() - signStartTime > 2000) {
-      if (
-        mostFrequentPrediction !== "Rien" &&
-        (validatedSigns.length === 0 ||
-          validatedSigns[validatedSigns.length - 1] !== currentSign)
-      ) {
-        if (validatedSigns.length >= 4) {
-          validatedSigns = [];
+        if (prediction[i].probability > highestPrediction.probability) {
+            highestPrediction = prediction[i];
         }
-        validatedSigns.push(currentSign);
-        console.log("Validated Signs: ", validatedSigns);
-        displayValidatedSigns();
-
-        // Check if validatedSigns matches predefinedSigns
-        const webcamContainer = document.querySelector("#webcam-container");
-        if (arraysEqual(validatedSigns, predefinedSignsFire)) {
-          if (webcamContainer) {
-            webcamContainer.classList.add("fire");
-          } else {
-            console.error("Element with class 'webcam-container' not found.");
-          }
-        } else {
-          if (webcamContainer) {
-            webcamContainer.classList.remove("fire");
-          }
-        }
-      }
-      currentSign = null;
-      signStartTime = null;
     }
-  } else {
-    currentSign = mostFrequentPrediction;
-    signStartTime = Date.now();
-  }
-  // Apply zoom animation to the highest prediction image
-  applyZoomAnimation(highestPrediction.className);
+
+    if (currentSign === highestPrediction.className) {
+        if (Date.now() - signStartTime > 2000) {
+            if (
+                highestPrediction.className !== "Rien" &&
+                (validatedSigns.length === 0 ||
+                    validatedSigns[validatedSigns.length - 1] !== currentSign)
+            ) {
+                if (validatedSigns.length >= 4) {
+                    validatedSigns = [];
+                }
+
+                validatedSigns.push(currentSign);
+                console.log("Validated Signs:", validatedSigns);
+                displayValidatedSigns();
+
+                // 🚀 Vérifie si la combinaison validée correspond à `predefinedSignsFire`
+                if (arraysEqual(validatedSigns, predefinedSignsFire)) {
+                    console.log(
+                        "🔥 Combinaison Fire validée ! Envoi à Firebase..."
+                    );
+                    envoyerCombinaison(validatedSigns);
+                }
+            }
+            currentSign = null;
+            signStartTime = null;
+        }
+    } else {
+        currentSign = highestPrediction.className;
+        signStartTime = Date.now();
+    }
+
+    applyZoomAnimation(highestPrediction.className);
 }
 
-// Function to check if two arrays are equal
+// 📤 **Fonction pour envoyer la combinaison validée dans Firebase**
+function envoyerCombinaison(combinaison) {
+    db.ref("validatedSigns").set({ combination: combinaison });
+}
+
+// 📥 **Écoute en temps réel des combinaisons des autres joueurs**
+db.ref("validatedSigns").on("value", (snapshot) => {
+    if (snapshot.val() && snapshot.val().combination) {
+        const remoteSigns = snapshot.val().combination;
+        console.log("📡 Nouvelle combinaison reçue:", remoteSigns);
+        displayValidatedSigns(remoteSigns);
+    }
+});
+
+// ✅ Vérifie si deux tableaux sont identiques
 function arraysEqual(a, b) {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
+    return JSON.stringify(a) === JSON.stringify(b);
 }
-// Function to display validated signs
-function displayValidatedSigns() {
-  const container = document.getElementById("validated-signs-container");
-  container.innerHTML = ""; // Clear the container
-  validatedSigns.forEach((sign) => {
-    const img = document.createElement("img");
-    img.src = `./images/animal-${sign}.png`; // Assumes you have images named after the class names
-    img.alt = sign;
-    img.classList.add("validated-sign");
-    container.appendChild(img);
-  });
+
+// 🎨 **Affichage des signes validés**
+function displayValidatedSigns(signs = validatedSigns) {
+    const container = document.getElementById("validated-signs-container");
+    container.innerHTML = "";
+
+    signs.forEach((sign) => {
+        const img = document.createElement("img");
+        img.src = `./images/animal-${sign}.png`;
+        img.alt = sign;
+        img.classList.add("validated-sign");
+        container.appendChild(img);
+    });
 }
-// Function to apply zoom animation to the highest prediction image
+
+// 📸 **Ajoute une animation au signe détecté**
 function applyZoomAnimation(className) {
-  // Remove the zoom-animation class from all images
-  const images = document.querySelectorAll("img");
-  images.forEach((img) => img.classList.remove("zoom-animation"));
+    const images = document.querySelectorAll("img");
+    images.forEach((img) => img.classList.remove("zoom-animation"));
 
-  // Add the zoom-animation class to the image with the highest prediction class name
-  const targetImage = document.querySelector(`img.${className}`);
-  if (targetImage) {
-    targetImage.classList.add("zoom-animation");
-  }
+    const targetImage = document.querySelector(`img.${className}`);
+    if (targetImage) {
+        targetImage.classList.add("zoom-animation");
+    }
 }
 
-// Function to map class names to colors
+// 🎨 **Définition des couleurs pour chaque signe**
 function getColorForClass(className) {
-  switch (className) {
-    case "singe":
-      return "red";
-    case "Chien":
-      return "blue";
-    case "sanglier":
-      return "green";
-    case "tigre":
-      return "yellow";
-    case "Cheval":
-      return "purple";
-    default:
-      return "white";
-  }
+    const colors = {
+        singe: "red",
+        Chien: "blue",
+        sanglier: "green",
+        tigre: "yellow",
+        Cheval: "purple",
+    };
+    return colors[className] || "white";
 }
 
+// ⏳ Lance l'initialisation après chargement du DOM
 document.addEventListener("DOMContentLoaded", init);
