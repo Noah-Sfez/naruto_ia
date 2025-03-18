@@ -23,43 +23,6 @@
   </head>
 
 <body class="bg-[url(/images/bg-naruto.jpg)] bg-cover bg-center">
-  <!--
-<script>
-    console.log("Firebase chargé ?", typeof firebase !== "undefined");
-
-    const firebaseConfig = {
-    apiKey: "AIzaSyD7fPS34yKGiwz7l6s8tNW6-Rq6XbbuWZw",
-    authDomain: "naruto-3cfab.firebaseapp.com",
-    databaseURL:
-        "https://naruto-3cfab-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "naruto-3cfab",
-    storageBucket: "naruto-3cfab.firebasestorage.app",
-    messagingSenderId: "123088598116",
-    appId: "1:123088598116:web:d5959376cbe9d17e1c5b71",
-    measurementId: "G-8S858350W1",
-};
-
-    // Initialisation Firebase
-    if (typeof firebase !== "undefined") {
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // Fonction pour envoyer un geste
-        function envoyerGeste(geste) {
-            db.ref("geste").set({ action: geste });
-            console.log("Geste envoyé :", geste);
-        }
-
-        // Fonction pour écouter les gestes en temps réel
-        db.ref("geste").on("value", (snapshot) => {
-            if (snapshot.val()) {
-                console.log("Geste reçu :", snapshot.val().action);
-            }
-        });
-    } else {
-        console.error("Firebase ne s'est pas chargé correctement !");
-    }
-</script>-->
     <header class="flex justify-between items-center p-4">
       <img src="images/narutoLogo.png" alt="Naruto Logo" width="20%" />
       <div id="label-container" class="flex gap-8"></div>

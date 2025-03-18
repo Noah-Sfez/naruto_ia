@@ -58,8 +58,8 @@ let signStartTime = null;
 
 const predefinedSigns = {
     fire: ["singe", "chien", "sanglier", "tigre"],
-    water: ["cheval", "tigre", "sanglier", "cheval"],
-    lightning: ["tigre", "sanglier", "cheval", "chien"],
+    water: ["cheval", "tigre", "chien", "cheval"],
+    lightning: ["tigre", "sanglier", "chien", "cheval"],
 };
 
 // 🔍 Fonction principale de prédiction
@@ -163,12 +163,14 @@ function detectElement(validatedSigns) {
     console.log("🔍 Vérification de la combinaison :", validatedSigns);
     for (let element in predefinedSigns) {
         if (arraysEqual(validatedSigns, predefinedSigns[element])) {
-            console.log("Element detected:", element);
+            console.log("✅ Élément détecté :", element);
             return element;
+        }
     }
     console.warn("⚠️ Aucune correspondance trouvée pour :", validatedSigns);
     return null;
 }
+
 
 // 📤 **Envoi de la combinaison validée à Firebase**
 function envoyerCombinaison(combinaison, element) {
