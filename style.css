@@ -73,3 +73,61 @@
 .validated-sign {
     width: 20%;
 }
+
+.water{
+    background: #63bbc5;
+    background: linear-gradient(0deg, #63bbc5 0%, #ff8951 100%);
+    background-size: 100% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    animation: water 2s infinite;
+    filter: drop-shadow(0 0 10px #ff0000);
+}
+
+@keyframes water {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+.lightning {
+    background: #63bbc5;
+    background: linear-gradient(0deg, #63bbc5 0%, #ff8951 100%);
+    background-size: 100% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    animation: lightning 2s infinite;
+    filter: drop-shadow(0 0 10px #ff0000);
+}
+
+@keyframes lightning {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}

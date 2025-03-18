@@ -46,7 +46,9 @@ let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
 
-const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie
+const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie pour le feu
+const predefinedSignsWater = ["Cheval", "tigre", "Chien", "Cheval"]; // Liste prédéfinie pour l'eau
+const predefinedSignsLightning = ["tigre", "sanglier", "Cheval", "Chien"]; // Liste prédéfinie pour la foudre
 
 async function predict() {
   // predict can take in an image, video or canvas html element
@@ -64,9 +66,9 @@ async function predict() {
   }
 
   // Change the body's background color based on the highest prediction
- // document.body.style.backgroundColor = getColorForClass(
- //   highestPrediction.className
- // );
+  document.body.style.backgroundColor = getColorForClass(
+    highestPrediction.className
+  );
   // Store the last 100 predictions
   if (!window.predictionHistory) {
     window.predictionHistory = [];
@@ -97,30 +99,37 @@ async function predict() {
 
   if (currentSign === mostFrequentPrediction) {
     if (Date.now() - signStartTime > 2000) {
+      // Check if the last validated sign is different from the current sign and not "Rien"
       if (
         mostFrequentPrediction !== "Rien" &&
         (validatedSigns.length === 0 ||
           validatedSigns[validatedSigns.length - 1] !== currentSign)
       ) {
+        // Limit the number of validated signs to 4
         if (validatedSigns.length >= 4) {
-          validatedSigns = [];
+          validatedSigns.shift(); // Remove the oldest sign
         }
         validatedSigns.push(currentSign);
         console.log("Validated Signs: ", validatedSigns);
         displayValidatedSigns();
 
-        // Check if validatedSigns matches predefinedSigns
+        // Check if validatedSigns matches any predefinedSigns
         const webcamContainer = document.querySelector("#webcam-container");
-        if (arraysEqual(validatedSigns, predefinedSignsFire)) {
-          if (webcamContainer) {
+        if (webcamContainer) {
+          if (arraysEqual(validatedSigns, predefinedSignsFire)) {
             webcamContainer.classList.add("fire");
+            webcamContainer.classList.remove("water", "lightning");
+          } else if (arraysEqual(validatedSigns, predefinedSignsWater)) {
+            webcamContainer.classList.add("water");
+            webcamContainer.classList.remove("fire", "lightning");
+          } else if (arraysEqual(validatedSigns, predefinedSignsLightning)) {
+            webcamContainer.classList.add("lightning");
+            webcamContainer.classList.remove("fire", "water");
           } else {
-            console.error("Element with class 'webcam-container' not found.");
+            webcamContainer.classList.remove("fire", "water", "lightning");
           }
         } else {
-          if (webcamContainer) {
-            webcamContainer.classList.remove("fire");
-          }
+          console.error("Element with class 'webcam-container' not found.");
         }
       }
       currentSign = null;
@@ -133,6 +142,7 @@ async function predict() {
   // Apply zoom animation to the highest prediction image
   applyZoomAnimation(highestPrediction.className);
 }
+
 
 // Function to check if two arrays are equal
 function arraysEqual(a, b) {
