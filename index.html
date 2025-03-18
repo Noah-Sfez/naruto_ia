@@ -13,23 +13,24 @@
     <link rel="stylesheet" href="https://horizon-tailwind-react-corporate-7s21b54hb-horizon-ui.vercel.app/static/css/main.d7f96858.css" />
   </head>
   <body>
-    <header>
+    <header class="flex justify-between items-center p-4">
       <img src="images/narutoLogo.png" alt="" width="20%" />
-    </header>
-    <div class="flex-col gap-4 justify-items-center">
       <div id="label-container" class="flex gap-4"></div>
-    </div>
+    </header>
     <div class="grid grid-cols-3 gap-4 p-12 mt-12 justify-items-center items-center">
-      <img src="images/cheval.png" class="Cheval" alt="" width="200px" />
+      <div class="flex flex-col">
+        <img src="images/cheval.png" class="Cheval" alt="" width="160px" />
+        <img src="images/chien.png" data-animal="chien" alt="" class="Chien" width="160px" />
+        <img src="images/sanglier.png" data-animal="sanglier" alt="" class="sanglier" width="160px" />
+        <img src="images/singe.png" data-animal="singe" alt="" class="singe" width="160px" />
+        <img src="images/tigre.png" data-animal="tigre" class="tigre" width="160px" />
+      </div>
+
       <div>
-        <div id="validated-signs-container" class="flex mb-4"></div>
         <div id="webcam-container" class=""></div>
+        <div id="validated-signs-container" class="flex mb-4"></div>
       </div>
       
-      <img src="images/chien.png" data-animal="chien" alt="" class="Chien" width="200px" />
-      <img src="images/sanglier.png" data-animal="sanglier" alt="" class="sanglier" width="200px" />
-      <img src="images/singe.png" data-animal="singe" alt="" class="singe" width="200px" />
-      <img src="images/tigre.png" data-animal="tigre" class="tigre" width="200px" />
     </div>
 
     <script src="sketch.js"></script>
