@@ -2,7 +2,7 @@
 const URL = "./neant/";
 let model, webcam, labelContainer, maxPredictions;
 
-// Initialisation Firebase (⚠️ Remplace par tes propres valeurs Firebase)
+// Initialisation Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyD7fPS34yKGiwz7l6s8tNW6-Rq6XbbuWZw",
     authDomain: "naruto-3cfab.firebaseapp.com",
@@ -14,12 +14,11 @@ const firebaseConfig = {
     appId: "1:123088598116:web:d5959376cbe9d17e1c5b71",
     measurementId: "G-8S858350W1",
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 async function init() {
-    await tf.ready(); // Vérifie que TensorFlow.js est prêt
+    await tf.ready();
 
     const modelURL = URL + "model.json";
     const metadataURL = URL + "metadata.json";
@@ -52,14 +51,16 @@ async function loop() {
     window.requestAnimationFrame(loop);
 }
 
-// 🔥 Définition des gestes reconnus
+// 🔥 Définition des combinaisons reconnues
 let validatedSigns = [];
 let currentSign = null;
 let signStartTime = null;
 
-const predefinedSignsFire = ["singe", "Chien", "sanglier", "tigre"]; // Liste prédéfinie pour le feu
-const predefinedSignsWater = ["Cheval", "tigre", "Chien", "Cheval"]; // Liste prédéfinie pour l'eau
-const predefinedSignsLightning = ["tigre", "sanglier", "Cheval", "Chien"]; // Liste prédéfinie pour la foudre
+const predefinedSigns = {
+    fire: ["singe", "Chien", "sanglier", "tigre"],
+    water: ["Cheval", "tigre", "Chien", "Cheval"],
+    lightning: ["tigre", "sanglier", "Cheval", "Chien"],
+};
 
 // 🔍 Fonction principale de prédiction
 async function predict() {
@@ -77,95 +78,136 @@ async function predict() {
         }
     }
 
-  
-  // Store the last 100 predictions
-  if (!window.predictionHistory) {
-    window.predictionHistory = [];
-  }
+    let mostFrequentPrediction = getMostFrequentPrediction(
+        highestPrediction.className
+    );
 
-  window.predictionHistory.push(highestPrediction.className);
+    if (currentSign === mostFrequentPrediction) {
+        if (Date.now() - signStartTime > 2000) {
+            if (
+                mostFrequentPrediction !== "Rien" &&
+                (validatedSigns.length === 0 ||
+                    validatedSigns[validatedSigns.length - 1] !== currentSign)
+            ) {
+                if (validatedSigns.length >= 4) {
+                    validatedSigns = []; // 🔥 Réinitialise la liste après 4 gestes
+                }
 
-  if (window.predictionHistory.length > 20) {
-    window.predictionHistory.shift();
-  }
+                validatedSigns.push(currentSign);
+                console.log("✅ Combinaison en cours :", validatedSigns);
+                displayValidatedSigns();
 
-  // Calculate the most frequent prediction
-  const frequency = {};
-  window.predictionHistory.forEach((prediction) => {
-    frequency[prediction] = (frequency[prediction] || 0) + 1;
-  });
-
-  let mostFrequentPrediction = "";
-  let maxCount = 0;
-  for (const prediction in frequency) {
-    if (frequency[prediction] > maxCount) {
-      mostFrequentPrediction = prediction;
-      maxCount = frequency[prediction];
-    }
-  }
-
-  console.log(mostFrequentPrediction);
-
-  if (currentSign === mostFrequentPrediction) {
-    if (Date.now() - signStartTime > 2000) {
-      // Check if the last validated sign is different from the current sign and not "Rien"
-      if (
-        mostFrequentPrediction !== "Rien" &&
-        (validatedSigns.length === 0 ||
-          validatedSigns[validatedSigns.length - 1] !== currentSign)
-      ) {
-        // Limit the number of validated signs to 4
-        if (validatedSigns.length >= 4) {
-          validatedSigns.shift(); // Remove the oldest sign
+                let element = detectElement(validatedSigns);
+                if (element) {
+                    console.log("🔥 Combinaison complète détectée :", element);
+                    envoyerCombinaison(validatedSigns, element);
+                }
+            }
+            currentSign = null;
+            signStartTime = null;
         }
-        validatedSigns.push(currentSign);
-        console.log("Validated Signs: ", validatedSigns);
-        displayValidatedSigns();
-
-        // Check if validatedSigns matches any predefinedSigns
-        const webcamContainer = document.querySelector("#webcam-container");
-        if (webcamContainer) {
-          if (arraysEqual(validatedSigns, predefinedSignsFire)) {
-            webcamContainer.classList.add("fire");
-            webcamContainer.classList.remove("water", "lightning");
-          } else if (arraysEqual(validatedSigns, predefinedSignsWater)) {
-            webcamContainer.classList.add("water");
-            webcamContainer.classList.remove("fire", "lightning");
-          } else if (arraysEqual(validatedSigns, predefinedSignsLightning)) {
-            webcamContainer.classList.add("lightning");
-            webcamContainer.classList.remove("fire", "water");
-          } else {
-            webcamContainer.classList.remove("fire", "water", "lightning");
-          }
-        } else {
-          console.error("Element with class 'webcam-container' not found.");
-        }
-      }
-      currentSign = null;
-      signStartTime = null;
+    } else {
+        currentSign = mostFrequentPrediction;
+        signStartTime = Date.now();
     }
-  } else {
-    currentSign = mostFrequentPrediction;
-    signStartTime = Date.now();
-  }
-  // Apply zoom animation to the highest prediction image
-  applyZoomAnimation(highestPrediction.className);
+
+    applyZoomAnimation(highestPrediction.className);
 }
 
+// 📌 Fonction pour trouver la prédiction la plus fréquente
+function getMostFrequentPrediction(currentPrediction) {
+    if (!window.predictionHistory) window.predictionHistory = [];
+    window.predictionHistory.push(currentPrediction);
+    if (window.predictionHistory.length > 20) window.predictionHistory.shift();
 
-// 📤 **Fonction pour envoyer la combinaison validée dans Firebase**
-function envoyerCombinaison(combinaison) {
-    db.ref("validatedSigns").set({ combination: combinaison });
+    let frequency = {};
+    window.predictionHistory.forEach((prediction) => {
+        frequency[prediction] = (frequency[prediction] || 0) + 1;
+    });
+
+    return Object.keys(frequency).reduce((a, b) =>
+        frequency[a] > frequency[b] ? a : b
+    );
 }
 
-// 📥 **Écoute en temps réel des combinaisons des autres joueurs**
-db.ref("validatedSigns").on("value", (snapshot) => {
-    if (snapshot.val() && snapshot.val().combination) {
-        const remoteSigns = snapshot.val().combination;
-        console.log("📡 Nouvelle combinaison reçue:", remoteSigns);
-        displayValidatedSigns(remoteSigns);
+// 🔥 **Détecte quel élément a été réalisé**
+function detectElement(validatedSigns) {
+    for (let element in predefinedSigns) {
+        if (arraysEqual(validatedSigns, predefinedSigns[element]))
+            return element;
+    }
+    return null;
+}
+
+// 📤 **Envoi de la combinaison validée à Firebase**
+function envoyerCombinaison(combinaison, element) {
+    const playerId = Math.random().toString(36).substring(7);
+    const matchRef = db.ref("duels/match_1");
+
+    matchRef.once("value", (snapshot) => {
+        const matchData = snapshot.val();
+
+        if (!matchData || !matchData.player1) {
+            matchRef
+                .child("player1")
+                .set({ combination: combinaison, element, playerId });
+            console.log("👤 Joueur 1 a joué :", combinaison);
+        } else if (!matchData.player2) {
+            matchRef
+                .child("player2")
+                .set({ combination: combinaison, element, playerId });
+            console.log("👤 Joueur 2 a joué :", combinaison);
+            determinerGagnant(matchRef);
+        }
+    });
+}
+
+function determinerGagnant(matchRef) {
+    matchRef.once("value", (snapshot) => {
+        const matchData = snapshot.val();
+        if (!matchData || !matchData.player1 || !matchData.player2) return;
+
+        const { player1, player2 } = matchData;
+
+        const rules = {
+            fire: { beats: "lightning", losesTo: "water" },
+            water: { beats: "fire", losesTo: "lightning" },
+            lightning: { beats: "water", losesTo: "fire" },
+        };
+
+        let winner = "draw";
+        if (rules[player1.element].beats === player2.element) {
+            winner = "player1";
+        } else if (rules[player1.element].losesTo === player2.element) {
+            winner = "player2";
+        }
+
+        matchRef.child("winner").set({ winner, timestamp: Date.now() });
+        console.log(`🏆 Le gagnant est : ${winner}`);
+    });
+}
+
+// 📥 **Écoute du duel en temps réel**
+db.ref("duels/match_1").on("value", (snapshot) => {
+    const matchData = snapshot.val();
+    if (!matchData || !matchData.winner) return;
+
+    const winner = matchData.winner.winner;
+    if (winner === "draw") {
+        alert("⚖️ Match nul !");
+    } else {
+        alert(`🏆 ${winner} a gagné !`);
     }
 });
+
+// 📸 **Ajoute une animation au signe détecté**
+function applyZoomAnimation(className) {
+    document
+        .querySelectorAll("img")
+        .forEach((img) => img.classList.remove("zoom-animation"));
+    const targetImage = document.querySelector(`img.${className}`);
+    if (targetImage) targetImage.classList.add("zoom-animation");
+}
 
 // ✅ Vérifie si deux tableaux sont identiques
 function arraysEqual(a, b) {
@@ -186,28 +228,5 @@ function displayValidatedSigns(signs = validatedSigns) {
     });
 }
 
-// 📸 **Ajoute une animation au signe détecté**
-function applyZoomAnimation(className) {
-    const images = document.querySelectorAll("img");
-    images.forEach((img) => img.classList.remove("zoom-animation"));
-
-    const targetImage = document.querySelector(`img.${className}`);
-    if (targetImage) {
-        targetImage.classList.add("zoom-animation");
-    }
-}
-
-// 🎨 **Définition des couleurs pour chaque signe**
-function getColorForClass(className) {
-    const colors = {
-        singe: "red",
-        Chien: "blue",
-        sanglier: "green",
-        tigre: "yellow",
-        Cheval: "purple",
-    };
-    return colors[className] || "white";
-}
-
-// ⏳ Lance l'initialisation après chargement du DOM
+// ⏳ Démarre l'initialisation après le chargement du DOM
 document.addEventListener("DOMContentLoaded", init);
